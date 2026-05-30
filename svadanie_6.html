@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>💌 Приглашение</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 100%; min-height: 100vh; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: linear-gradient(135deg, #fff0f5 0%, #fff8f0 100%);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ЭКРАНЫ */
+.screen {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-height: 100vh;
+  padding: 2rem;
+  width: 100%;
+}
+.screen.active { display: flex; }
+
+.hearts { font-size: 44px; margin-bottom: 1.2rem; }
+h1 { font-size: 26px; font-weight: 700; color: #2d1a24; margin-bottom: 1rem; line-height: 1.4; }
+.subtitle { font-size: 16px; color: #9e7080; margin-bottom: 2.5rem; }
+
+/* КНОПКА ДА */
+.btn-yes {
+  background: linear-gradient(135deg, #e8547a, #c0395f);
+  color: #fff; border: none; border-radius: 50px;
+  font-size: 18px; font-weight: 600; padding: 16px 52px;
+  cursor: pointer; position: relative; z-index: 1;
+  box-shadow: 0 4px 20px rgba(192,57,95,0.4);
+  -webkit-tap-highlight-color: transparent;
+}
+.btn-yes:active { opacity: 0.85; }
+
+/* КНОПКА НЕТ */
+#btnNo {
+  background: #fff;
+  color: #aaa;
+  border: 1.5px solid #ddd;
+  border-radius: 50px;
+  font-size: 15px;
+  padding: 12px 28px;
+  cursor: pointer;
+  position: fixed;
+  z-index: 10;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: none;
+}
+
+/* КАРТОЧКИ */
+.datetime-row {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  justify-content: center;
+  width: 100%;
+  max-width: 700px;
+  margin-bottom: 1.5rem;
+}
+.card {
+  background: #fff;
+  border-radius: 20px;
+  padding: 1.25rem;
+  box-shadow: 0 4px 24px rgba(200,100,130,0.1);
+  flex: 1;
+  min-width: 280px;
+  max-width: 340px;
+}
+.card-title { font-size: 14px; font-weight: 600; color: #2d1a24; margin-bottom: 12px; }
+
+/* КАЛЕНДАРЬ */
+.cal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.cal-nav {
+  background: #f9f0f4; border: none; cursor: pointer;
+  color: #c0395f; padding: 6px 12px; border-radius: 50px;
+  font-size: 18px; font-weight: 700; line-height: 1;
+  -webkit-tap-highlight-color: transparent;
+}
+.cal-month { font-size: 14px; font-weight: 600; color: #2d1a24; }
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+.cal-day-name { font-size: 10px; color: #bba0a8; text-align: center; padding: 3px 0; font-weight: 600; }
+.cal-day {
+  font-size: 12px; color: #2d1a24; text-align: center;
+  padding: 7px 0; border-radius: 50%; cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.cal-day:active { background: #fce8ef; }
+.cal-day.selected { background: #e8547a !important; color: #fff; font-weight: 700; }
+.cal-day.past { color: #ccc; pointer-events: none; }
+.cal-day.empty { pointer-events: none; }
+
+/* ВРЕМЯ */
+.time-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.time-btn {
+  background: #fff5f8; border: 1.5px solid #f0c0d0;
+  border-radius: 10px; padding: 9px 2px;
+  font-size: 13px; font-weight: 500; color: #2d1a24;
+  cursor: pointer; text-align: center;
+  -webkit-tap-highlight-color: transparent;
+}
+.time-btn:active { background: #fce8ef; }
+.time-btn.selected { background: #e8547a !important; color: #fff; border-color: #e8547a; }
+
+/* ПРЕДПОЧТЕНИЯ */
+.chosen-info { display: none; margin-top: 1.5rem; width: 100%; max-width: 400px; }
+.chosen-summary { font-size: 15px; color: #9e7080; margin-bottom: 1rem; }
+.prefs-label { font-size: 14px; color: #bba0a8; margin-bottom: 0.75rem; }
+.prefs-row { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+.pref-btn {
+  background: #fff; border: 1.5px solid #f0c0d0; border-radius: 16px;
+  padding: 16px 12px; cursor: pointer; font-size: 13px; color: #2d1a24;
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  width: 115px; font-weight: 500; line-height: 1.3;
+  -webkit-tap-highlight-color: transparent;
+}
+.pref-btn:active { background: #fff0f5; }
+.pref-icon { font-size: 28px; }
+
+/* ФИНАЛ */
+.finish-icon { font-size: 64px; margin-bottom: 1rem; }
+.finish-title { font-size: 24px; font-weight: 700; color: #2d1a24; margin-bottom: 0.75rem; }
+.finish-sub { font-size: 15px; color: #9e7080; line-height: 1.7; max-width: 280px; }
+.badge {
+  font-size: 14px; color: #c0395f; background: #fff0f5; border-radius: 50px;
+  padding: 8px 20px; display: inline-block; margin-top: 1.5rem;
+  border: 1px solid #f0c0d0; font-weight: 500;
+}
+</style>
+</head>
+<body>
+
+<!-- ЭКРАН 1 -->
+<div id="screen1" class="screen active">
+  <div class="hearts">💕</div>
+  <h1>Ты пойдёшь со мной<br>на свидание?</h1>
+  <p class="subtitle">Я очень надеюсь на твой ответ 🥺</p>
+  <button class="btn-yes" id="btnYes">Да &nbsp;💖</button>
+</div>
+
+<!-- КНОПКА НЕТ -->
+<button id="btnNo">Нет</button>
+
+<!-- ЭКРАН 2 -->
+<div id="screen2" class="screen">
+  <div class="hearts">🎉</div>
+  <h1>Ура! Ты согласилась! 🥰</h1>
+  <p class="subtitle">Когда ты свободна?</p>
+  <div class="datetime-row">
+    <div class="card">
+      <div class="card-title">📅 Выбери дату</div>
+      <div class="cal-header">
+        <button class="cal-nav" id="prevBtn">‹</button>
+        <span class="cal-month" id="calMonthLabel"></span>
+        <button class="cal-nav" id="nextBtn">›</button>
+      </div>
+      <div class="cal-grid" id="calGrid"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">🕐 Выбери время</div>
+      <div class="time-grid" id="timeGrid"></div>
+    </div>
+  </div>
+  <div class="chosen-info" id="chosenInfo">
+    <div class="chosen-summary">📅 <strong id="chosenDateLabel"></strong> &nbsp;🕐 <strong id="chosenTimeLabel"></strong></div>
+    <div class="prefs-label">Что тебе больше нравится?</div>
+    <div class="prefs-row">
+      <button class="pref-btn" data-pref="Выставки / музеи"><span class="pref-icon">🏛️</span>Выставки / музеи</button>
+      <button class="pref-btn" data-pref="Кофе / рестораны"><span class="pref-icon">☕</span>Кофе / рестораны</button>
+      <button class="pref-btn" data-pref="На твой выбор"><span class="pref-icon">✨</span>На твой выбор</button>
+    </div>
+  </div>
+</div>
+
+<!-- ЭКРАН 3 -->
+<div id="screen3" class="screen">
+  <div class="finish-icon">💌</div>
+  <div class="finish-title">Спасибо за ответ!</div>
+  <div class="finish-sub">Ожидай приглашение — я всё организую и напишу совсем скоро 🌹</div>
+  <div class="badge" id="sendBadge">Отправляю...</div>
+</div>
+
+<script>
+(function() {
+
+  // === ИНИЦИАЛИЗАЦИЯ ПОЗИЦИИ КНОПКИ НЕТ ===
+  var btnNo = document.getElementById('btnNo');
+  var btnYes = document.getElementById('btnYes');
+
+  function setInitialNoPos() {
+    var vw = window.innerWidth;
+    var vh = window.innerHeight;
+    btnNo.style.left = Math.round(vw / 2 + 60) + 'px';
+    btnNo.style.top = Math.round(vh / 2 + 50) + 'px';
+  }
+  setInitialNoPos();
+
+  function moveNo() {
+    var vw = window.innerWidth;
+    var vh = window.innerHeight;
+    var w = btnNo.offsetWidth || 80;
+    var h = btnNo.offsetHeight || 44;
+    var curX = parseFloat(btnNo.style.left) || vw/2;
+    var curY = parseFloat(btnNo.style.top) || vh/2;
+    var x, y, tries = 0;
+    do {
+      x = 10 + Math.random() * (vw - w - 20);
+      y = 10 + Math.random() * (vh - h - 20);
+      tries++;
+    } while (tries < 30 && (Math.abs(x - curX) < 80 || Math.abs(y - curY) < 80));
+    btnNo.style.left = x + 'px';
+    btnNo.style.top = y + 'px';
+  }
+
+  // Мышь — убегает при наведении
+  btnNo.addEventListener('mouseenter', function() { moveNo(); });
+
+  // Телефон — убегает при касании
+  btnNo.addEventListener('touchstart', function(e) {
+    e.preventDefault();
+    moveNo();
+  }, { passive: false });
+
+  // === КНОПКА ДА ===
+  btnYes.addEventListener('click', function() { goYes(); });
+  btnYes.addEventListener('touchend', function(e) {
+    e.preventDefault();
+    goYes();
+  });
+
+  function goYes() {
+    btnNo.style.display = 'none';
+    showScreen('screen2');
+    initCalendar();
+    renderTime();
+  }
+
+  // === ЭКРАНЫ ===
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(function(s) {
+      s.classList.remove('active');
+    });
+    document.getElementById(id).classList.add('active');
+    window.scrollTo(0, 0);
+  }
+
+  // === КАЛЕНДАРЬ ===
+  var MONTHS = ['Январь','Февраль','Март','Апрель','Май','Июнь',
+                'Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+  var DAYS = ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
+  var calYear, calMonth, selectedDate = null, selectedTime = null;
+
+  function initCalendar() {
+    var now = new Date();
+    calYear = now.getFullYear();
+    calMonth = now.getMonth();
+    renderCal();
+  }
+
+  function renderCal() {
+    document.getElementById('calMonthLabel').textContent = MONTHS[calMonth] + ' ' + calYear;
+    var grid = document.getElementById('calGrid');
+    grid.innerHTML = '';
+    DAYS.forEach(function(d) {
+      var el = document.createElement('div');
+      el.className = 'cal-day-name';
+      el.textContent = d;
+      grid.appendChild(el);
+    });
+    var startDow = new Date(calYear, calMonth, 1).getDay();
+    startDow = startDow === 0 ? 6 : startDow - 1;
+    for (var i = 0; i < startDow; i++) {
+      var empty = document.createElement('div');
+      empty.className = 'cal-day empty';
+      grid.appendChild(empty);
+    }
+    var daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+    var today = new Date(); today.setHours(0,0,0,0);
+    for (var d = 1; d <= daysInMonth; d++) {
+      (function(day) {
+        var el = document.createElement('div');
+        el.className = 'cal-day';
+        el.textContent = day;
+        var thisDate = new Date(calYear, calMonth, day);
+        if (thisDate < today) {
+          el.classList.add('past');
+        } else {
+          if (selectedDate && selectedDate.getTime() === thisDate.getTime()) {
+            el.classList.add('selected');
+          }
+          el.addEventListener('click', function() { pickDay(day); });
+          el.addEventListener('touchend', function(e) { e.preventDefault(); pickDay(day); });
+        }
+        grid.appendChild(el);
+      })(d);
+    }
+  }
+
+  document.getElementById('prevBtn').addEventListener('click', function() {
+    calMonth--; if (calMonth < 0) { calMonth = 11; calYear--; } renderCal();
+  });
+  document.getElementById('nextBtn').addEventListener('click', function() {
+    calMonth++; if (calMonth > 11) { calMonth = 0; calYear++; } renderCal();
+  });
+
+  function pickDay(d) {
+    selectedDate = new Date(calYear, calMonth, d);
+    renderCal();
+    document.getElementById('chosenDateLabel').textContent = d + ' ' + MONTHS[calMonth] + ' ' + calYear;
+    checkShowPrefs();
+  }
+
+  // === ВРЕМЯ ===
+  var TIMES = ['10:00','11:00','12:00','13:00','14:00','15:00',
+               '16:00','17:00','18:00','19:00','20:00','21:00'];
+
+  function renderTime() {
+    var grid = document.getElementById('timeGrid');
+    grid.innerHTML = '';
+    TIMES.forEach(function(t) {
+      var btn = document.createElement('button');
+      btn.className = 'time-btn' + (selectedTime === t ? ' selected' : '');
+      btn.textContent = t;
+      btn.addEventListener('click', function() { pickTime(t); });
+      btn.addEventListener('touchend', function(e) { e.preventDefault(); pickTime(t); });
+      grid.appendChild(btn);
+    });
+  }
+
+  function pickTime(t) {
+    selectedTime = t;
+    renderTime();
+    document.getElementById('chosenTimeLabel').textContent = t;
+    checkShowPrefs();
+  }
+
+  function checkShowPrefs() {
+    if (selectedDate && selectedTime) {
+      var info = document.getElementById('chosenInfo');
+      info.style.display = 'block';
+      setTimeout(function() {
+        info.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }, 100);
+    }
+  }
+
+  // === ПРЕДПОЧТЕНИЯ ===
+  document.querySelectorAll('.pref-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() { choosePref(this.dataset.pref); });
+    btn.addEventListener('touchend', function(e) { e.preventDefault(); choosePref(this.dataset.pref); });
+  });
+
+  function choosePref(pref) {
+    var dateStr = selectedDate
+      ? selectedDate.toLocaleDateString('ru-RU', {day:'numeric', month:'long', year:'numeric'})
+      : 'не выбрана';
+    showScreen('screen3');
+
+    // Загружаем EmailJS и отправляем
+    var script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js';
+    script.onload = function() {
+      emailjs.init('a3KawCouv6zDwrwGh');
+      emailjs.send('service_3hda9on', 'template_82gndj3', {
+        to_email: 'alimbekmaremukov2@gmail.com',
+        subject: '🌹 Ответ на приглашение на свидание',
+        name: 'Она согласилась! 🎉',
+        message: 'Дата: ' + dateStr + '\nВремя: ' + (selectedTime || '—') + '\nПредпочтение: ' + pref
+      }).then(function() {
+        document.getElementById('sendBadge').textContent = '✓ Письмо отправлено!';
+      }, function() {
+        document.getElementById('sendBadge').textContent = '⚠️ Ошибка отправки';
+      });
+    };
+    document.head.appendChild(script);
+  }
+
+})();
+</script>
+</body>
+</html>
